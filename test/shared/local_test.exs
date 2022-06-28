@@ -91,6 +91,14 @@ defmodule Nebulex.LocalTest do
         refute cache.get(:counter_with_ttl)
       end
 
+      test "incr initializes default value if ttl is expired", %{cache: cache} do
+        assert cache.incr(:another_counter_with_ttl, 1, ttl: 1000) == 1
+        assert cache.incr(:another_counter_with_ttl) == 2
+
+        :ok = Process.sleep(1010)
+        assert cache.incr(:another_counter_with_ttl, 1, ttl: 1000) == 1
+      end
+
       test "incr existing entry", %{cache: cache} do
         assert cache.put(:counter, 0) == :ok
         assert cache.incr(:counter) == 1
